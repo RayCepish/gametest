@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:game_test/core/constants/app_sounds.dart';
 import 'package:game_test/core/services/audio_service.dart';
+import 'package:game_test/data/datasources/local_preferences.dart';
 import 'package:game_test/dependency_injection/setup_dependency.dart';
 import 'package:game_test/features/cubbits/user_cubit/user_cubit.dart';
 import 'package:injectable/injectable.dart';
@@ -28,7 +29,12 @@ class GameCubit extends Cubit<GameState> {
     required this.completeLevelUseCase,
     required this.audio,
   }) : super(GameState.initial(level: level, eggs: eggs)) {
-    audio.playMusic(AppMusic.game.path);
+    final settings = getIt<LocalPreferences>().loadSettings();
+
+    if (settings.sound) {
+      unawaited(audio.playMusic(AppMusic.game.path));
+    }
+
     startCountdown();
   }
 
@@ -45,7 +51,11 @@ class GameCubit extends Cubit<GameState> {
   @override
   Future<void> close() async {
     _isCancelled = true;
-    await audio.playMusic(AppMusic.menu.path);
+    final settings = getIt<LocalPreferences>().loadSettings();
+
+    if (settings.sound) {
+      await audio.playMusic(AppMusic.menu.path);
+    }
     return super.close();
   }
 

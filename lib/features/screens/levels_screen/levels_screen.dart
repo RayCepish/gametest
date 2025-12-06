@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:game_test/core/constants/app_images.dart';
+import 'package:game_test/core/services/level_service.dart';
 import 'package:game_test/core/widgets/game_app_bar/game_app_bar.dart';
 import 'package:game_test/core/widgets/layouts/main_layout.dart';
 import 'package:game_test/core/widgets/stroke_text.dart';
@@ -14,8 +17,8 @@ class LevelsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userState = context.watch<UserCubit>().state;
-    final eggsCount = userState.user.eggs.length;
+    final user = context.watch<UserCubit>().state.user;
+    final eggsCount = user.eggs.length;
 
     return MainLayout(
       appBar: GameAppBar(
@@ -29,28 +32,30 @@ class LevelsScreen extends StatelessWidget {
         child: Column(
           children: [
             StrokeText("CHANGE LEVEL", fontSize: 32.sp),
-            SizedBox(height: 6.h),
-
-            StrokeText("OWNED EGGS $eggsCount", fontSize: 24.sp),
+            StrokeText("OWNED EGGS $eggsCount", fontSize: 20.sp),
+            SizedBox(height: 20.h),
 
             Expanded(
               child: Center(
                 child: Wrap(
                   spacing: 25.w,
                   runSpacing: 25.h,
-                  children: List.generate(12, (i) {
-                    final level = i + 1;
+                  children: List.generate(12, (index) {
+                    final level = index + 1;
 
-                    final requiredEggs = i + 1;
+                    final unlocked = LevelService.isLevelUnlocked(
+                      level: level,
+                      eggsCount: eggsCount,
+                    );
 
-                    final missing = requiredEggs - eggsCount;
+                    final required = LevelService.eggsRequiredForLevel(level);
 
-                    final unlocked = missing <= 0;
+                    final missing = max(required - eggsCount, 0);
 
                     return LevelButton(
                       number: unlocked ? level : missing,
-                      requiredEggs: requiredEggs,
                       unlocked: unlocked,
+                      requiredEggs: required,
                       onTap: () {
                         if (unlocked) {
                           context.goNamed('game', extra: level);

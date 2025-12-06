@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:game_test/core/constants/app_images.dart';
 import 'package:game_test/core/widgets/stroke_text.dart';
-import 'package:game_test/features/screens/levels_screen/widgets/button_filters.dart';
+import 'package:game_test/core/constants/color_filter.dart';
 import 'package:go_router/go_router.dart';
 
 class LevelButton extends StatelessWidget {
@@ -46,7 +46,7 @@ class LevelButton extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         ColorFiltered(
-          colorFilter: grayslakeFrameFilter,
+          colorFilter: grayslakeFilter,
           child: Opacity(
             opacity: 0.5,
             child: Image.asset(AppImages.emptyFrame, width: 95.w),
@@ -54,7 +54,7 @@ class LevelButton extends StatelessWidget {
         ),
 
         ColorFiltered(
-          colorFilter: grayslakeEggFilter,
+          colorFilter: grayslakeFilter,
           child: Image.asset(AppImages.egg1, width: 40.w),
         ),
 

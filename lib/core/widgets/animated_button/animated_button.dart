@@ -33,28 +33,37 @@ class AnimatedButton extends StatefulWidget {
 
 class _AnimatedButtonState extends State<AnimatedButton>
     with TickerProviderStateMixin {
-  late AnimationController _pulseController;
+  AnimationController? _pulseController;
   late AnimationController _shimmerController;
+
   late Animation<double> _pulse;
   late Animation<double> _shimmer;
+
+  bool get hasPulse => widget.pulseAnimationConfig.duration != null;
 
   @override
   void initState() {
     super.initState();
 
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: widget.pulseAnimationConfig.duration,
-    )..repeat(reverse: true);
+    // --- Pulse animation ---
+    if (hasPulse) {
+      _pulseController = AnimationController(
+        vsync: this,
+        duration: widget.pulseAnimationConfig.duration!,
+      )..repeat(reverse: true);
 
-    _pulse =
-        Tween<double>(
-          begin: widget.pulseAnimationConfig.minScale,
-          end: widget.pulseAnimationConfig.maxScale,
-        ).animate(
-          CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-        );
+      _pulse =
+          Tween<double>(
+            begin: widget.pulseAnimationConfig.minScale,
+            end: widget.pulseAnimationConfig.maxScale,
+          ).animate(
+            CurvedAnimation(parent: _pulseController!, curve: Curves.easeInOut),
+          );
+    } else {
+      _pulse = const AlwaysStoppedAnimation(1.0);
+    }
 
+    // --- Shimmer animation ---
     _shimmerController = AnimationController(
       vsync: this,
       duration: widget.shimmerAnimationConfig.interval,
@@ -65,7 +74,7 @@ class _AnimatedButtonState extends State<AnimatedButton>
 
   @override
   void dispose() {
-    _pulseController.dispose();
+    _pulseController?.dispose();
     _shimmerController.dispose();
     super.dispose();
   }
@@ -73,14 +82,21 @@ class _AnimatedButtonState extends State<AnimatedButton>
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: Listenable.merge([_pulseController, _shimmerController]),
+      animation: Listenable.merge([
+        if (_pulseController != null) _pulseController!,
+        _shimmerController,
+      ]),
       builder: (_, __) {
         return Transform.scale(
           scale: _pulse.value,
           child: GestureDetector(
-            onTapDown: (_) => _pulseController.stop(),
+            onTapDown: (_) {
+              _pulseController?.stop();
+            },
             onTapUp: (_) {
-              _pulseController.repeat(reverse: true);
+              if (_pulseController != null) {
+                _pulseController!.repeat(reverse: true);
+              }
               widget.onTap();
             },
             child: ClipRRect(
@@ -88,7 +104,6 @@ class _AnimatedButtonState extends State<AnimatedButton>
               child: Stack(
                 children: [
                   Image.asset(widget.imagePath, width: widget.width.w),
-
                   Positioned.fill(
                     child: ShimmerEffect(progress: _shimmer.value),
                   ),

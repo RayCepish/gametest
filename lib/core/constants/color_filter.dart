@@ -1,0 +1,24 @@
+import 'dart:ui';
+
+const grayslakeFilter = ColorFilter.matrix([
+  0.3,
+  0.3,
+  0.3,
+  0,
+  0,
+  0.3,
+  0.3,
+  0.3,
+  0,
+  0,
+  0.3,
+  0.3,
+  0.3,
+  0,
+  0,
+  0,
+  0,
+  0,
+  1,
+  0,
+]);

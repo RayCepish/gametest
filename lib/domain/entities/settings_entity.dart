@@ -10,4 +10,16 @@ class SettingsEntity {
       vibration: vibration ?? this.vibration,
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is SettingsEntity &&
+        other.sound == sound &&
+        other.vibration == vibration;
+  }
+
+  @override
+  int get hashCode => Object.hash(sound, vibration);
 }

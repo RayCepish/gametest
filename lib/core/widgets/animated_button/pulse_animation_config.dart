@@ -1,12 +1,12 @@
 part of 'animated_button.dart';
 
 class PulseAnimationConfig {
-  final Duration duration;
+  final Duration? duration;
   final double minScale;
   final double maxScale;
 
   const PulseAnimationConfig({
-    required this.duration,
+    this.duration,
     required this.minScale,
     required this.maxScale,
   });
@@ -18,8 +18,8 @@ class PulseAnimationConfig {
   );
 
   static const medium = PulseAnimationConfig(
-    duration: Duration(milliseconds: 1400),
-    minScale: 0.97,
+    duration: Duration(seconds: 2),
+    minScale: 1.01,
     maxScale: 1.05,
   );
 
@@ -27,5 +27,10 @@ class PulseAnimationConfig {
     duration: Duration(milliseconds: 900),
     minScale: 0.90,
     maxScale: 1.08,
+  );
+  static const none = PulseAnimationConfig(
+    duration: null,
+    minScale: 1.0,
+    maxScale: 1.0,
   );
 }

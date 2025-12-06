@@ -21,7 +21,10 @@ class AudioService {
   Future<void> playMusic(String asset) async {
     if (!enabled) return;
 
-    if (_currentTrack == asset) return;
+    if (_currentTrack == asset) {
+      if (!_player.playing) await _player.play();
+      return;
+    }
 
     _currentTrack = asset;
 
@@ -31,5 +34,8 @@ class AudioService {
     await _player.play();
   }
 
-  Future<void> stop() => _player.stop();
+  Future<void> stop() async {
+    _currentTrack = null;
+    await _player.stop();
+  }
 }

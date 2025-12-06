@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:game_test/core/constants/app_images.dart';
+import 'package:game_test/core/constants/color_filter.dart';
 import 'package:game_test/core/widgets/animated_button/animated_button.dart';
 import 'package:game_test/core/widgets/game_app_bar/game_app_bar.dart';
 import 'package:game_test/core/widgets/glass_panel/glass_panel.dart';
 import 'package:game_test/core/widgets/layouts/main_layout.dart';
 import 'package:game_test/core/widgets/stroke_text.dart';
-import 'package:game_test/core/services/audio_service.dart';
-import 'package:game_test/core/services/vibration_service.dart';
-import 'package:game_test/dependency_injection/setup_dependency.dart';
+
 import 'package:game_test/domain/entities/settings_entity.dart';
 import 'package:game_test/features/cubbits/settings_cubit/settings_cubit.dart';
 import 'package:game_test/features/screens/setting_screen/widgets/setting_tile.dart';
@@ -49,8 +48,6 @@ class _SettingsScreenState extends State<SettingsScreen>
     return BlocBuilder<SettingsCubit, SettingsEntity>(
       builder: (context, state) {
         final cubit = context.read<SettingsCubit>();
-        final audio = getIt<AudioService>();
-        final vibration = getIt<VibrationService>();
 
         return PopScope(
           canPop: true,
@@ -81,20 +78,13 @@ class _SettingsScreenState extends State<SettingsScreen>
                         SettingTile(
                           label: "SOUND",
                           value: state.sound,
-                          onChanged: (v) {
-                            cubit.updateSound(v);
-                            v ? audio.stop() : audio.stop();
-                          },
+                          onChanged: cubit.updateSound,
                         ),
 
                         SettingTile(
                           label: "VIBRATION",
                           value: state.vibration,
-                          onChanged: (v) {
-                            cubit.updateVibration(v);
-                            vibration.enabled = v;
-                            if (v) vibration.vibrateLight();
-                          },
+                          onChanged: cubit.updateVibration,
                         ),
                       ],
                     ),
@@ -106,12 +96,30 @@ class _SettingsScreenState extends State<SettingsScreen>
                     scale: cubit.hasUnsavedChanges
                         ? _pulseController
                         : const AlwaysStoppedAnimation(1.0),
-                    child: AnimatedButton(
-                      imagePath: AppImages.btnSave,
-                      width: 230,
-                      onTap: () async {
-                        await cubit.save();
-                      },
+
+                    child: ColorFiltered(
+                      colorFilter: cubit.hasUnsavedChanges
+                          ? const ColorFilter.mode(
+                              Colors.transparent,
+                              BlendMode.dst,
+                            )
+                          : grayslakeFilter,
+
+                      child: IgnorePointer(
+                        ignoring: !cubit.hasUnsavedChanges,
+                        child: AnimatedButton(
+                          imagePath: AppImages.btnSave,
+                          width: 230,
+                          pulseAnimationConfig: cubit.hasUnsavedChanges
+                              ? PulseAnimationConfig.medium
+                              : PulseAnimationConfig.none,
+
+                          onTap: () async {
+                            await cubit.save();
+                            context.pop();
+                          },
+                        ),
+                      ),
                     ),
                   ),
                 ],

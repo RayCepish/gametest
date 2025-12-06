@@ -30,28 +30,53 @@ class GameAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final gold = context.watch<UserCubit>().state.user.gold;
 
+    final hasLeft = leftButtonImage != null;
+    final hasRight = rightButtonImage != null;
+    final hasCoins = showCoins;
+
+    final left = hasLeft
+        ? AppBarButton(image: leftButtonImage!, onTap: onLeftTap)
+        : SizedBox(width: 50.w);
+
+    final right = hasRight
+        ? AppBarButton(image: rightButtonImage!, onTap: onRightTap)
+        : SizedBox(width: 50.w);
+
+    final coins = GestureDetector(
+      onTap: onCoinsTap,
+      child: CoinsDisplay(value: gold),
+    );
+
+    if (hasLeft && hasRight && hasCoins) {
+      return Row(
+        children: [
+          left,
+          Expanded(child: Center(child: coins)),
+          right,
+        ],
+      );
+    }
+
+    if (!hasRight && hasCoins) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          left,
+          Row(
+            children: [
+              coins,
+              SizedBox(width: 20.w), // 👈 Додаємо відступ справа
+            ],
+          ),
+        ],
+      );
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        leftButtonImage != null
-            ? AppBarButton(image: leftButtonImage!, onTap: onLeftTap)
-            : SizedBox(width: 50.w),
-
-        const Spacer(),
-        Row(
-          children: [
-            if (showCoins)
-              GestureDetector(
-                onTap: onCoinsTap,
-                child: CoinsDisplay(value: gold),
-              ),
-
-            SizedBox(width: 10.w),
-
-            if (rightButtonImage != null)
-              AppBarButton(image: rightButtonImage!, onTap: onRightTap),
-          ],
-        ),
+        left,
+        if (hasRight) right else SizedBox(width: 50.w),
       ],
     );
   }

@@ -161,6 +161,8 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i792.SettingsCubit(
         gh<_i559.LoadSettingsUseCase>(),
         gh<_i355.SaveSettingsUseCase>(),
+        gh<_i1019.AudioService>(),
+        gh<_i881.VibrationService>(),
       ),
     );
     gh.factory<_i299.GameCubit>(

@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:game_test/core/app/router/app_router.dart';
 import 'package:game_test/core/constants/app_images.dart';
 import 'package:game_test/core/services/audio_service.dart';
+import 'package:game_test/data/datasources/local_preferences.dart';
 import 'package:game_test/dependency_injection/setup_dependency.dart';
 import 'package:game_test/features/cubbits/app_lifecycle_cubit/app_lifecycle_cubit.dart';
 import 'package:game_test/features/cubbits/profile_cubit/profile_cubit.dart';
@@ -27,7 +28,11 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    unawaited(getIt<AudioService>().playMenuMusic());
+    final settings = getIt<LocalPreferences>().loadSettings();
+
+    if (settings.sound) {
+      unawaited(getIt<AudioService>().playMenuMusic());
+    }
   }
 
   @override
